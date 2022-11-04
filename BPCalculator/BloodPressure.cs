@@ -19,6 +19,15 @@ namespace BPCalculator
         public const int DiastolicMin = 40;
         public const int DiastolicMax = 100;
 
+        public const int LowSystolicUpper = 89;
+        public const int IdealSystolicUpper = 119;
+        public const int PreHighSystolicUpper = 139;
+
+        public const int LowDiastolicUpper = 59;
+        public const int IdealDiastolicUpper = 79;
+        public const int PreHighDiastolicUpper = 89;
+
+
         [Range(SystolicMin, SystolicMax, ErrorMessage = "Invalid Systolic Value")]
         public int Systolic { get; set; }                       // mmHG
 
@@ -30,8 +39,23 @@ namespace BPCalculator
         {
             get
             {
-                // implement as part of project
-                throw new NotImplementedException("not implemented yet");        
+                int sys = this.Systolic;
+                int dia = this.Diastolic;
+
+                if (sys <= LowSystolicUpper && dia <= LowDiastolicUpper)
+                {
+                    return BPCategory.Low;
+                }
+                else if (sys <= IdealSystolicUpper && dia <= IdealDiastolicUpper)
+                {
+                    return BPCategory.Ideal;
+                }
+                else if (sys <= PreHighSystolicUpper && dia <= PreHighDiastolicUpper)
+                {
+                    return BPCategory.PreHigh;
+                }
+                else
+                    return BPCategory.High; 
             }
         }
     }

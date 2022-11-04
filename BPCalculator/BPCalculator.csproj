@@ -6,9 +6,7 @@
 
 
   <ItemGroup>
-<<<<<<< HEAD
-=======
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.9" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.3" />
   </ItemGroup>
   <ItemGroup>
@@ -16,7 +14,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\" />
->>>>>>> 8e86d41cc768cc6523153f990c9319c12329d549
   </ItemGroup>
 
 </Project>
