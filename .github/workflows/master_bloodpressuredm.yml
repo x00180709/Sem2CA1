@@ -28,8 +28,42 @@ jobs:
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
-        
-      - name: OWASP Dependency checker
+
+      - name: Run unit tests
+        run: dotnet test Unit_Tests/Unit_Tests.csproj --no-restore --collect "Code coverage" -l:trx
+
+      - name: Publish the results of the Unit Test Execution run
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: MS Tests
+          path: '**.trx'
+          reporter: 'dotnet-trx'
+
+      - name: dotnet publish
+        run: dotnet publish -c Release -o ${{env.AZURE_WEBAPP_PACKAGE_PATH}}/myapp
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          slot-name: 'Production'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_470A4E3A8794471282F0681E8F186702 }}
+          package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'
+
+  depchecktest:
+    runs-on: ubuntu-latest
+
+    name: depecheck_test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build project
+        run: dotnet build
+
+      - name: Depcheck
         uses: dependency-check/Dependency-Check_Action@main
         id: Depcheck
         with:
@@ -46,18 +80,3 @@ jobs:
         with:
            name: Depcheck report
            path: ${{github.workspace}}/reports
-
-      - name: Run unit tests
-        run: dotnet test Unit_Tests/Unit_Tests.csproj --no-restore --collect "Code coverage" -l:trx
-
-      - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.AZURE_WEBAPP_PACKAGE_PATH}}/myapp
-
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_470A4E3A8794471282F0681E8F186702 }}
-          package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'
