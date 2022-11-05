@@ -3,6 +3,10 @@
 
 name: Build and deploy Blood Pressure App to Azure Web App
 
+env:
+  AZURE_WEBAPP_NAME: 'bloodpressuredm'
+  AZURE_WEBAPP_PACKAGE_PATH: 'publish'
+
 on:
   push:
     branches:
@@ -24,15 +28,18 @@ jobs:
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
+        
+      - name: Run unit tests
+        run: dotnet test Tests/Tests.csproj --no-restore --collect "Code coverage" -l:trx
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish -c Release -o ${{env.AZURE_WEBAPP_PACKAGE_PATH}}/myapp
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'bloodpressuredm'
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_470A4E3A8794471282F0681E8F186702 }}
-          package: .
+          package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'
