@@ -29,27 +29,7 @@ jobs:
       - name: Build with dotnet
         run: dotnet build --configuration Release
         
-      - name: Run unit tests
-        run: dotnet test Unit_Tests/Unit_Tests.csproj --no-restore --collect "Code coverage" -l:trx
-
-      - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.AZURE_WEBAPP_PACKAGE_PATH}}/myapp
-
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ env.AZURE_WEBAPP_NAME }} #.net-app
-          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp
-
-  depchecktest:
-    runs-on: windows-latest
-    name: depecheck_test
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build project with Maven
-        run: mvn clean install
-      - name: Depcheck
+      - name: OWASP Dependency checker
         uses: dependency-check/Dependency-Check_Action@main
         id: Depcheck
         with:
@@ -60,24 +40,18 @@ jobs:
           args: >
             --failOnCVSS 7
             --enableRetired
+
       - name: Upload Test results
         uses: actions/upload-artifact@master
         with:
            name: Depcheck report
            path: ${{github.workspace}}/reports
 
-  deploy:
-    runs-on: windows-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v2
-        with:
-          name: ${{ env.AZURE_WEBAPP_NAME }} #.net-app
+      - name: Run unit tests
+        run: dotnet test Unit_Tests/Unit_Tests.csproj --no-restore --collect "Code coverage" -l:trx
+
+      - name: dotnet publish
+        run: dotnet publish -c Release -o ${{env.AZURE_WEBAPP_PACKAGE_PATH}}/myapp
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -86,4 +60,4 @@ jobs:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_470A4E3A8794471282F0681E8F186702 }}
-          package: '${{ env.AZURE_WEBAPP_NAME }}'
+          package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'
