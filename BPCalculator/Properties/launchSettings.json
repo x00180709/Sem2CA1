@@ -18,7 +18,7 @@
     "BPCalculator": {
       "commandName": "Project",
       "launchBrowser": true,
-      "applicationUrl": "http://localhost:20845",
+      "applicationUrl": "http://localhost:23953",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
