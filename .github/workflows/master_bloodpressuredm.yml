@@ -8,9 +8,9 @@ env:
   AZURE_WEBAPP_PACKAGE_PATH: 'publish'
 
 on:
-  push:
-    branches:
-      - master
+  # push:
+  #   branches:
+  #     - master
   workflow_dispatch:
 
 jobs:
