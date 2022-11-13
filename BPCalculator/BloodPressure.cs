@@ -37,6 +37,8 @@ namespace BPCalculator
         // calculate BP category
         public BPCategory Category
         {
+            //Check in Index.cshtml.cs to ensure on submit that systolic must be > diastolic
+            //Below checks what range systolic and diastolic values fit into, then returns associated Category
             get
             {
                 int sys = this.Systolic;

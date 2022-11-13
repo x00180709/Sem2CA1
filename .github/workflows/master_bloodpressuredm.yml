@@ -91,6 +91,22 @@ jobs:
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_470A4E3A8794471282F0681E8F186702 }}
           package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'
+  
+  k6_load_test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Pull Docker image used for k6
+      run: docker pull loadimpact/k6
+
+    - name: Run load tests and save output
+      run: docker run -i loadimpact/k6 run - <k6tests/perfTest.js > k6output.txt
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: k6output
+        path: k6output.txt
 
   depchecktest:
     runs-on: ubuntu-latest
