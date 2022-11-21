@@ -44,12 +44,11 @@ export default function() {
   });
 
   // POST with random data to prevent server cached response to POST, discard response body
-  // res = res.submitForm({
-  //   fields: { Bmi_WeightStones: getRandomInt(5, 50).toString(), Bmi_WeightPounds: getRandomInt(0, 13).toString(), 
-  //             Bmi_HeightFeet: getRandomInt(4, 7).toString(), Bmi_HeightInches: getRandomInt(0, 11).toString()}
-  // });
+  res = res.submitForm({
+    fields: { BP_Systolic: getRandomInt(100, 190).toString(), BP_Diastolic: getRandomInt(40, 100).toString()}
+  });
 
-  // check(res, {
-  //   "is status 200": (r) => r.status === 200
-  // });
+  check(res, {
+    "is status 200": (r) => r.status === 200
+  });
 }

@@ -75,7 +75,7 @@ jobs:
       run: docker pull loadimpact/k6
 
     - name: Run load tests and save output
-      run: docker run -i loadimpact/k6 run - <BPCalculator/PerfTests/PerfTestCA1.js > k6output.txt
+      run: docker run -i loadimpact/k6 run - <PerfTestCA1.js > k6output.txt
 
     - uses: actions/upload-artifact@v2
       with:
