@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  Build_Sonar_Deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -66,7 +66,7 @@ jobs:
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_470A4E3A8794471282F0681E8F186702 }}
           package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'
   
-  k6_load_test:
+  K6_Load_Test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -75,14 +75,14 @@ jobs:
       run: docker pull loadimpact/k6
 
     - name: Run load tests and save output
-      run: docker run -i loadimpact/k6 run - <PerfTests/PerfTestCA1.js > k6output.txt
+      run: docker run -i loadimpact/k6 run - <BPCalculator/PerfTests/PerfTestCA1.js > k6output.txt
 
     - uses: actions/upload-artifact@v2
       with:
         name: k6output
         path: k6output.txt
 
-  depchecktest:
+  Dependency_Check:
     runs-on: ubuntu-latest
 
     name: depecheck_test
