@@ -4,7 +4,7 @@
 name: Build and deploy Blood Pressure App to Azure Web App
 
 env:
-  AZURE_WEBAPP_NAME: 'bloodpressuredm-bloodpressuredm-qa'
+  AZURE_WEBAPP_NAME: bloodpressuredm-bloodpressuredm-qa
   AZURE_WEBAPP_PACKAGE_PATH: 'publish'
 
 on:
@@ -78,9 +78,9 @@ jobs:
   Deploy_to_Staging:
     name: Deploy to Azure web service
     needs: Build_Sonar_Deploy
-    environment:
-      name: QA
-      url: https://bloodpressuredm-bloodpressuredm-qa.azurewebsites.net
+    # environment:
+    #   name: QA
+    #   url: "https://bloodpressuredm-bloodpressuredm-qa.azurewebsites.net"
     runs-on: ubuntu-latest
 
     steps:
@@ -94,7 +94,7 @@ jobs:
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        slot-name: 'QA'
+        slot-name: staging
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'
 
