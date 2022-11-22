@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v2
         with:
@@ -77,17 +77,27 @@ jobs:
            path: ${{github.workspace}}/reports
 
   Deploy to Staging:
-      - name: Publish Blood Pressure Calc
-        run: dotnet publish -c Release -o ${{env.AZURE_WEBAPP_PACKAGE_PATH}}/myapp
+    name: Deploy to Azure web service
+    needs: Build_Sonar_Deploy
+    environment:
+      name: QA
+      url: https://bloodpressuredm.azurewebsites.net
+    runs-on: ubuntu-latest
 
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_470A4E3A8794471282F0681E8F186702 }}
-          package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Publish Blood Pressure Calc
+      run: dotnet publish -c Release -o ${{env.AZURE_WEBAPP_PACKAGE_PATH}}/myapp
+
+    - name: Deploy to Azure Web App
+      id: deploy-to-webapp
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        slot-name: 'Production'
+        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_470A4E3A8794471282F0681E8F186702 }}
+        package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'
   
   K6_Load_Test:
     runs-on: ubuntu-latest
