@@ -76,7 +76,7 @@ jobs:
            name: Depcheck report
            path: ${{github.workspace}}/reports
 
-  Deploy to Staging:
+  Deploy_to_Staging:
     name: Deploy to Azure web service
     needs: Build_Sonar_Deploy
     environment:
