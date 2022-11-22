@@ -4,7 +4,7 @@
 name: Build and deploy Blood Pressure App to Azure Web App
 
 env:
-  AZURE_WEBAPP_NAME: 'bloodpressuredm'
+  AZURE_WEBAPP_NAME: 'bloodpressuredm-bloodpressuredm-qa'
   AZURE_WEBAPP_PACKAGE_PATH: 'publish'
 
 on:
@@ -32,7 +32,7 @@ jobs:
           name: MS Test Results
           path: '**.trx'
           reporter: 'dotnet-trx'
-          
+
   SonarCloud_Scan:
     runs-on: ubuntu-latest
     steps:
@@ -80,7 +80,7 @@ jobs:
     needs: Build_Sonar_Deploy
     environment:
       name: QA
-      url: https://bloodpressuredm.azurewebsites.net
+      url: https://bloodpressuredm-bloodpressuredm-qa.azurewebsites.net
     runs-on: ubuntu-latest
 
     steps:
@@ -97,6 +97,16 @@ jobs:
         slot-name: 'Production'
         publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_470A4E3A8794471282F0681E8F186702 }}
         package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'
+
+    # # login to Azure account
+    # - uses: azure/login@v1
+    #   with:
+    #     creds: ${{ secrets.AZURE_CREDENTIALS }}                         # JSON objects which represents service principal
+
+    # # blue/green
+    # - name: swap QA and production slots
+    #   run: |
+    #     az webapp deployment slot swap -n bloodpressuredm-bloodpressuredm-qa -g lab1 --slot staging --target-slot production
   
   K6_Load_Test:
     runs-on: ubuntu-latest
