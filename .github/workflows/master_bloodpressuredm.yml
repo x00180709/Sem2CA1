@@ -16,10 +16,9 @@ on:
 jobs:
   Build_Sonar_Deploy:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
-
+      
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v2
         with:
@@ -35,26 +34,50 @@ jobs:
             -Dsonar.projectKey=x00180709
             -Dsonar.python.coverage.reportPaths=covereage.xml
             -Dsonar.verbose=true
-          
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      - name: Build with dotnet
+      - name: Dotnet Build
         run: dotnet build --configuration Release
 
-      - name: Run unit tests
+      - name: Run Unit Tests
         run: dotnet test Unit_Tests/Unit_Tests.csproj --no-restore --collect "Code coverage" -l:trx
 
-      - name: Publish the results of the Unit Test Execution run
+      - name: Publish Unit Test Results
         uses: dorny/test-reporter@v1
         if: success() || failure()
         with:
-          name: MS Tests
+          name: MS Test Results
           path: '**.trx'
           reporter: 'dotnet-trx'
 
-      - name: dotnet publish
+  Dependency_Check:
+    runs-on: ubuntu-latest
+    name: OWASP_Dependency_Check
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        
+      - name: Depcheck
+        uses: dependency-check/Dependency-Check_Action@main
+        id: Depcheck
+        with:
+          project: 'BPCalculator'
+          path: '.'
+          format: 'HTML'
+          out: 'reports' # this is the default, no need to specify unless you wish to override it
+          args: >
+            --failOnCVSS 7
+            --enableRetired
+
+      - name: Upload Test results
+        uses: actions/upload-artifact@master
+        with:
+           name: Depcheck report
+           path: ${{github.workspace}}/reports
+
+  Deploy to Staging:
+      - name: Publish Blood Pressure Calc
         run: dotnet publish -c Release -o ${{env.AZURE_WEBAPP_PACKAGE_PATH}}/myapp
 
       - name: Deploy to Azure Web App
@@ -81,32 +104,3 @@ jobs:
       with:
         name: k6output
         path: k6output.txt
-
-  Dependency_Check:
-    runs-on: ubuntu-latest
-
-    name: OWASP_Dependency_Check
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Build project
-        run: dotnet build
-
-      - name: Depcheck
-        uses: dependency-check/Dependency-Check_Action@main
-        id: Depcheck
-        with:
-          project: 'BPCalculator'
-          path: '.'
-          format: 'HTML'
-          out: 'reports' # this is the default, no need to specify unless you wish to override it
-          args: >
-            --failOnCVSS 7
-            --enableRetired
-
-      - name: Upload Test results
-        uses: actions/upload-artifact@master
-        with:
-           name: Depcheck report
-           path: ${{github.workspace}}/reports
