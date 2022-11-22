@@ -7,9 +7,9 @@ export let options = {
   // maintain those 20 concurrent users for 1 minute
   // then ramp down to 0 over a minute i.e. ramp-up pattern of "load"
   stages: [
-    { duration: "1m", target: 20 },            
-    { duration: "1m", target: 20 },
-    { duration: "1m", target: 0 }             
+    { duration: "30s", target: 20 },            
+    { duration: "30s", target: 20 },
+    { duration: "30s", target: 0 }             
   ],
   
   // setting a threshold at 200ms request duration for 95th percentile
