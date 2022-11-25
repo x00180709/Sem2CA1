@@ -76,6 +76,7 @@ jobs:
            path: ${{github.workspace}}/reports
 
   Run_Playwright_Tests:
+    runs-on: ubuntu-latest
     name: Run Playwright Acceptance Tests
     steps:
       - name: Checkout
