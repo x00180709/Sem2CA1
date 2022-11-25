@@ -75,22 +75,18 @@ jobs:
            name: Depcheck report
            path: ${{github.workspace}}/reports
 
-  Run_Playwright_Tests:
+  tests_e2e:
+    name: Run end-to-end tests
     runs-on: ubuntu-latest
-    name: Run Playwright Acceptance Tests
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Run Selenium tests
-        run: dotnet test #runs on chrome
-        run: BROWSER=firefox dotnet test #runs on firefox
-        run: BROWSER=firefox dotnet test #runs on firefox
-  
-    # Upload results of selenium tests
-    - uses: actions/upload-artifact@v2
-      with:
-        name: Acceptance Tests Results
-        path: TestResults/playwright.trx
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - name: Install dependencies
+        run: npm ci
+      - name: Install playwright browsers
+        run: npx playwright install --with-deps
+      - name: Run tests
+        run: npx playwright test
 
   Deploy_to_Staging:
     name: Deploy to Azure web service
