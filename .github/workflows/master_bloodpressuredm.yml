@@ -75,6 +75,22 @@ jobs:
            name: Depcheck report
            path: ${{github.workspace}}/reports
 
+  Run_Playwright_Tests:
+    name: Run Playwright Acceptance Tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Run Selenium tests
+        run: dotnet test #runs on chrome
+        run: BROWSER=firefox dotnet test #runs on firefox
+        run: BROWSER=firefox dotnet test #runs on firefox
+  
+    # Upload results of selenium tests
+    - uses: actions/upload-artifact@v2
+      with:
+        name: Acceptance Tests Results
+        path: TestResults/playwright.trx
+
   Deploy_to_Staging:
     name: Deploy to Azure web service
     needs: Build_Sonar_Deploy
