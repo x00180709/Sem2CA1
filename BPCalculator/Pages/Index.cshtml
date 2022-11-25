@@ -14,7 +14,7 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="BP.Systolic" class="control-label"></label>
-                <input asp-for="BP.Systolic" class="form-control"/>
+                <input asp-for="BP.Systolic" class="form-control" />
                 <span asp-validation-for="BP.Systolic" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -25,6 +25,8 @@
             <div class="form-group">
                 <input type="submit" value="Submit" class="btn btn-primary" />
             </div>
+
+
             @if (ViewData.ModelState.IsValid)
             {
                 <div class="form-group">
@@ -34,6 +36,33 @@
         </form>
     </div>
 </div>
+<body>
+    <button type="button" class="collapsible">How to take a reading?</button>
+    <div class="content">
+        <p>
+            If you're measuring at home, do a few tests.<br /><br />
+            When measuring, sit on an upright chair with a back, have your arm supported and your feet flat on the floor.<br /><br />
+            Do not put the cuff over your clothes or push your sleeve up, wear a short-sleeved top.<br /><br />
+            Relax, breathe normally and do not talk during the test.<br />
+        </p>
+    </div>
+</body>
+<script>
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function () {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+            } else {
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+        });
+    }
+</script>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
