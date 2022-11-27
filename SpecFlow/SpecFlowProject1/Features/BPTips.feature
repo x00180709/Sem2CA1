@@ -13,4 +13,4 @@ Scenario: Close the panel
 	Given the user is on the Blood Pressure Calculator home page
 	And the panel has been expanded
 	When the user clicks on the collapsible panel
-	Then the panel will closes
+	Then the panel will close
