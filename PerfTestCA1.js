@@ -3,22 +3,22 @@ import http from "k6/http";
 
 
 export let options = {
-  // This stages configuration will ramp to 20 Virtual Users over a minute,
-  // maintain those 20 concurrent users for 1 minute
-  // then ramp down to 0 over a minute i.e. ramp-up pattern of "load"
+  // This stages configuration will ramp to 20 Virtual Users over 30s,
+  // maintain those 20 concurrent users for 30s
+  // spike to 100 users for 30s
+  // then ramp down to 0 30s i.e. ramp-up pattern of "spike"
   stages: [
     { duration: "30s", target: 20 },            
     { duration: "30s", target: 20 },
+    { duration: "30s", target: 100 },
     { duration: "30s", target: 0 }             
   ],
   
-  // setting a threshold at 200ms request duration for 95th percentile
-  // i.e. 95% of request duration times should be < 100 ms
+  // 95% of request duration times should be < 100 ms
  	thresholds: {
     "http_req_duration": ["p(95) < 200"]
   },
 
-  // Don't save the bodies of HTTP responses
   discardResponseBodies: false,
 
   ext: {
