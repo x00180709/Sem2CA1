@@ -33,17 +33,18 @@ jobs:
           path: '**.trx'
           reporter: 'dotnet-trx'
 
-      - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@master
+      - name: SonarScanner for .NET 7 with pull request decoration support
+        uses: highbyte/sonarscan-dotnet@v2.2.1
         with:
-          projectBaseDir: .
-          args: >
-            -Dsonar.organization=x00180709
-            -Dsonar.projectKey=x00180709
-            -Dsonar.python.coverage.reportPaths='**.coverage'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          sonarProjectKey: x00180709
+          sonarProjectName:  x00180709
+          sonarOrganization: x00180709
+          dotnetTestArguments: --logger trx --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+          sonarBeginArguments: /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" -d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx"
+        
+          env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   # SonarCloud_Scan:
   #   runs-on: ubuntu-latest
   #   steps:
