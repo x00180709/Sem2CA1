@@ -39,7 +39,7 @@ jobs:
         
       - name: Install Playwright
         shell: pwsh
-        run: /home/runner/work/Sem2CA1/Sem2CA1/PlaywrightTests/bin/Debug/net6.0/playwright.ps1 install 
+        run: pwsh /home/runner/work/Sem2CA1/Sem2CA1/PlaywrightTests/bin/Debug/net6.0/playwright.ps1 install 
 
       - name: SonarScanner for .NET 6
         uses: highbyte/sonarscan-dotnet@v2.1.3
