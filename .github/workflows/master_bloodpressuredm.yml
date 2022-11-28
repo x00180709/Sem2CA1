@@ -73,21 +73,21 @@ jobs:
            name: Depcheck report
            path: ${{github.workspace}}/reports
 
-  tests_e2e:
-    runs-on: windows-latest
-    name: Run end-to-end tests
-    steps:
-    - uses: actions/checkout@v3
-    - name: Setup dotnet
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: 6.0.x
-    - run: dotnet build
-    - name: Ensure browsers are installed
-      run: pwsh bin\Debug\net6.0\playwright.ps1 install --with-deps
-    - name: Run your tests
-      run: dotnet test #runs against chrome
-      run: BROWSER=firefox dotnet test #cross browser
+  # tests_e2e:
+  #   runs-on: windows-latest
+  #   name: Run end-to-end tests
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: Setup dotnet
+  #     uses: actions/setup-dotnet@v2
+  #     with:
+  #       dotnet-version: 6.0.x
+  #   - run: dotnet build
+  #   - name: Ensure browsers are installed
+  #     run: pwsh bin\Debug\net6.0\playwright.ps1 install --with-deps
+  #   - name: Run your tests
+  #     run: dotnet test #runs against chrome
+  #     run: BROWSER=firefox dotnet test #cross browser
 
   Deploy_to_Staging:
     name: Deploy to Azure web service
