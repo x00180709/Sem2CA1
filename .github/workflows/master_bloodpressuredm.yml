@@ -33,10 +33,6 @@ jobs:
           path: '**.trx'
           reporter: 'dotnet-trx'
 
-  SonarCloud_Scan:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         with:
@@ -44,9 +40,24 @@ jobs:
           args: >
             -Dsonar.organization=x00180709
             -Dsonar.projectKey=x00180709
+            -Dsonar.python.coverage.reportPaths='**.coverage'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  # SonarCloud_Scan:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: SonarCloud Scan
+  #       uses: sonarsource/sonarcloud-github-action@master
+  #       with:
+  #         projectBaseDir: .
+  #         args: >
+  #           -Dsonar.organization=x00180709
+  #           -Dsonar.projectKey=x00180709
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   Dependency_Check:
     runs-on: ubuntu-latest
