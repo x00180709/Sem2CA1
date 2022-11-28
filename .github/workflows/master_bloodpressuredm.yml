@@ -33,6 +33,10 @@ jobs:
           path: '**.trx'
           reporter: 'dotnet-trx'
       
+      - name: Test Playwright Installation
+        shell: pwsh
+        run:  pwsh pwd
+        
       - name: Install Playwright
         shell: pwsh
         run:  pwsh PlaywrightTests/bin/Debug/net6.0/playwright.ps1 install 
