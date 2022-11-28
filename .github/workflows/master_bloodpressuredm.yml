@@ -23,7 +23,7 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: Run Unit Tests
-        run: dotnet test Unit_Tests/Unit_Tests.csproj --no-restore --collect "Code coverage" -l:trx
+        run: dotnet test Unit_Tests/Unit_Tests.csproj --no-restore --collect "XPlat Code Coverage" -l:trx
 
       - name: Publish Unit Test Results
         uses: dorny/test-reporter@v1
@@ -32,8 +32,12 @@ jobs:
           name: MS Test Results
           path: '**.trx'
           reporter: 'dotnet-trx'
+      
+      - name: Install Playwright
+        shell: pwsh
+        run:  pwsh PlaywrightTests/bin/Debug/net6.0/playwright.ps1 install 
 
-      - name: SonarScanner for .NET 7 with pull request decoration support
+      - name: SonarScanner for .NET 6
         uses: highbyte/sonarscan-dotnet@v2.1.3
         with:
           sonarProjectKey: x00180709
@@ -45,20 +49,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  # SonarCloud_Scan:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: SonarCloud Scan
-  #       uses: sonarsource/sonarcloud-github-action@master
-  #       with:
-  #         projectBaseDir: .
-  #         args: >
-  #           -Dsonar.organization=x00180709
-  #           -Dsonar.projectKey=x00180709
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   Dependency_Check:
     runs-on: ubuntu-latest
