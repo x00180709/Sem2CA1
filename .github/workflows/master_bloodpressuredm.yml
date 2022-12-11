@@ -6,6 +6,7 @@ name: Build and deploy Blood Pressure App to Azure Web App
 env:
   AZURE_WEBAPP_NAME: bloodpressuredm
   AZURE_WEBAPP_PACKAGE_PATH: 'publish'
+  URI: bloodpressuredm.azurewebsites.net
 
 on:
   # push:
@@ -33,13 +34,13 @@ jobs:
           path: '**.trx'
           reporter: 'dotnet-trx'
       
-      - name: Test Playwright Installation
-        shell: pwsh
-        run: pwd
+      # - name: Test Playwright Installation
+      #   shell: pwsh
+      #   run: pwd
         
-      - name: Install Playwright
-        shell: pwsh
-        run: pwsh /home/runner/work/Sem2CA1/Sem2CA1/PlaywrightTests/bin/Debug/net6.0/playwright.ps1 install 
+      # - name: Install Playwright
+      #   shell: pwsh
+      #   run: pwsh /home/runner/work/Sem2CA1/Sem2CA1/PlaywrightTests/bin/Debug/net6.0/playwright.ps1 install 
 
       - name: SonarScanner for .NET 6
         uses: highbyte/sonarscan-dotnet@v2.1.3
@@ -126,7 +127,7 @@ jobs:
     # # blue/green
     # - name: swap QA and production slots
     #   run: |
-    #     az webapp deployment slot swap -n bloodpressuredm-bloodpressuredm-qa -g lab1 --slot staging --target-slot production
+    #     az webapp deployment slot swap -n bloodpressuredm-staging -g lab1 --slot staging --target-slot production
   
   K6_Load_Test:
     runs-on: ubuntu-latest
@@ -143,3 +144,18 @@ jobs:
       with:
         name: k6output
         path: k6output.txt
+
+  zap_baseline_scan:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Pull Docker image for ZAP
+      run: docker pull owasp/zap2docker-weekly
+
+    - name: Run baseline scan
+      run: docker run -v /report:/zap/wrk/:rw --user root -t owasp/zap2docker-weekly zap-baseline.py -t ${{env.URI}} -I -r zapreport.html
+  
+    - uses: actions/upload-artifact@v2
+      name: upload ZAP report
+      with:
+        name: ZAPreport
+        path: /report/zapreport.html
