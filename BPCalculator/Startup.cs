@@ -37,13 +37,14 @@ namespace BPCalculator
                 app.UseExceptionHandler("/Error");
             }
 
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
-
+            app.UseCookiePolicy();
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
-            // This method adds X-FRAME-OPTIONS for every request
+            //Adding response header info as a result of Zap scan feedback
             app.Use(async (context, next) =>
             {
                 context.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
@@ -51,8 +52,6 @@ namespace BPCalculator
                 context.Response.Headers.Add("Content-Security-Policy", "default-src 'self';");
                 await next();
             });
-
-            app.UseMvc();
 
             app.UseEndpoints(endpoints =>
             {
