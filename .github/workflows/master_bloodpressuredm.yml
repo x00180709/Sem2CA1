@@ -6,7 +6,7 @@ name: Build and deploy Blood Pressure App to Azure Web App
 env:
   AZURE_WEBAPP_NAME: bloodpressuredm
   AZURE_WEBAPP_PACKAGE_PATH: 'publish'
-  URI: bloodpressuredm.azurewebsites.net
+  URI: https://bloodpressuredm.azurewebsites.net
 
 on:
   # push:
