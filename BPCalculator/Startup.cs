@@ -43,6 +43,22 @@ namespace BPCalculator
 
             app.UseAuthorization();
 
+            //This implements content security policy
+            app.Use(async (context, next) =>
+            {
+                context.Response.Headers.Add("Content-Security-Policy", "default-src 'self';");
+                await next();
+            });
+
+            // This method adds X-FRAME-OPTIONS for every request
+            app.Use(async (context, next) =>
+            {
+                context.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
+                await next();
+            });
+
+            app.UseMvc();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
