@@ -11,7 +11,7 @@ public class Tests : PageTest
     public async Task Setup()
     {
         //Opens browser to specified URI
-        await Page.GotoAsync(url: "http://bloodpressuredm.azurewebsites.net");
+        await Page.GotoAsync(url: "http://bloodpressuredm-staging.azurewebsites.net");
     }
 
     [Test]

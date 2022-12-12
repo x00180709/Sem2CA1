@@ -6,16 +6,17 @@ name: Build and deploy Blood Pressure App to Azure Web App
 env:
   AZURE_WEBAPP_NAME: bloodpressuredm
   AZURE_WEBAPP_PACKAGE_PATH: 'publish'
-  URI: https://bloodpressuredm.azurewebsites.net
+  URI: https://bloodpressuredm-staging.azurewebsites.net
 
 on:
   # push:
   #   branches:
   #     - master
+  # Set to manually trigger the workflow
   workflow_dispatch:
 
 jobs:
-  Build_Sonar_Deploy:
+  Build_and_UnitTest:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -23,8 +24,9 @@ jobs:
       - name: Dotnet Build
         run: dotnet build --configuration Release
 
+      #Run unit tests, collect code coverage and then publish Unit Test Results
       - name: Run Unit Tests
-        run: dotnet test Unit_Tests/Unit_Tests.csproj --no-restore --collect "XPlat Code Coverage" -l:trx
+        run: dotnet test Unit_Tests/Unit_Tests.csproj --no-restore --collect "Code Coverage" -l:trx
 
       - name: Publish Unit Test Results
         uses: dorny/test-reporter@v1
@@ -34,30 +36,21 @@ jobs:
           path: '**.trx'
           reporter: 'dotnet-trx'
       
-      - name: Ensure browsers are installed for Playwright
-        shell: pwsh
-        run: |
-            CD 'PlaywrightTests/bin/Release/net6.0/';
-            ls
-            pwsh playwright.ps1 install --with-deps;
-            CD;
-      
-      - name: Run PLaywright Tests
-        run: dotnet test PlaywrightTests/PlaywrightTests.csproj --no-restore -l:trx
-
-      - name: SonarScanner for .NET 6
-        uses: highbyte/sonarscan-dotnet@v2.1.3
-        with:
-          sonarProjectKey: x00180709
-          sonarProjectName:  x00180709
-          sonarOrganization: x00180709
-          dotnetTestArguments: --logger trx --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
-          sonarBeginArguments: /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" -d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx"
+      #Sonarscan is giving an error due to not being able to find Playwright dependencies, commenting out for now.
+      # - name: SonarScanner for .NET 6
+      #   uses: highbyte/sonarscan-dotnet@v2.1.3
+      #   with:
+      #     sonarProjectKey: x00180709
+      #     sonarProjectName:  x00180709
+      #     sonarOrganization: x00180709
+      #     dotnetTestArguments: --logger trx --collect:"Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+      #     sonarBeginArguments: /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" -d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx"
         
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        # env:
+        #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        #   # SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+  #Runs OWASP Dependency Check as a parallel job
   Dependency_Check:
     runs-on: ubuntu-latest
     name: OWASP_Dependency_Check
@@ -72,66 +65,77 @@ jobs:
           project: 'BPCalculator'
           path: '.'
           format: 'HTML'
-          out: 'reports' # this is the default, no need to specify unless you wish to override it
+          out: 'reports'
           args: >
             --failOnCVSS 7
             --enableRetired
 
+      #Upload results to be visible as an artifact
       - name: Upload Test results
         uses: actions/upload-artifact@master
         with:
            name: Depcheck report
            path: ${{github.workspace}}/reports
 
-  # tests_e2e:
-  #   runs-on: windows-latest
-  #   name: Run end-to-end tests
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #   - name: Setup dotnet
-  #     uses: actions/setup-dotnet@v2
-  #     with:
-  #       dotnet-version: 6.0.x
-  #   - run: dotnet build
-  #   - name: Ensure browsers are installed
-  #     run: pwsh bin\Debug\net6.0\playwright.ps1 install --with-deps
   #   - name: Run your tests
   #     run: dotnet test #runs against chrome
   #     run: BROWSER=firefox dotnet test #cross browser
 
-  Deploy_to_Staging:
-    name: Deploy to Azure web service
-    needs: Build_Sonar_Deploy
-    # environment:
-    #   name: QA
-    #   url: "https://bloodpressuredm-bloodpressuredm-qa.azurewebsites.net"
+  Deploy_Run_Playwright_Tests_Swap_Slots:
+    name: Deploy to Azure Staging Slot
+    needs: Build_and_UnitTest
+    environment:
+      name: QA
+      url: ${{env.URI}}
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
 
+    #Publish the web app
     - name: Publish Blood Pressure Calc
       run: dotnet publish -c Release -o ${{env.AZURE_WEBAPP_PACKAGE_PATH}}/myapp
 
+    #Deploy the web app
     - name: Deploy to Azure Web App
       id: deploy-to-webapp
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        slot-name: Production
-        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_470A4E3A8794471282F0681E8F186702 }}
+        slot-name: staging
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUB_PRO }}
         package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'
 
-    # # login to Azure account
-    # - uses: azure/login@v1
-    #   with:
-    #     creds: ${{ secrets.AZURE_CREDENTIALS }}                         # JSON objects which represents service principal
+    #Installs dependencies needed for playwright tests to be executed
+    # Executes a powershell command once navigated to the correct file location
+    - name: Install Playwright Dependencies
+          shell: pwsh
+          run: |
+            CD 'PlaywrightTests/bin/Release/net6.0/';
+            pwsh playwright.ps1 install --with-deps;
+            CD;
+      
+    #Runs associated Playwright Tests
+    - name: Run Playwright Acceptance Tests
+      run: dotnet test PlaywrightTests/PlaywrightTests.csproj --logger:"trx;LogFileName=playwright.trx"
 
-    # # blue/green
-    # - name: swap QA and production slots
-    #   run: |
-    #     az webapp deployment slot swap -n bloodpressuredm-staging -g lab1 --slot staging --target-slot production
+    # Upload results of Playwright tests
+    - uses: actions/upload-artifact@v3
+      with:
+        name: Playwright Test Results
+        path: TestResults/playwright.trx
+
+    # Login to Azure account
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    # Perform Deployment Slot Swap (Blue/Green)
+    - name: swap QA and production slots
+      run: |
+        az webapp deployment slot swap -n bloodpressuredm-staging -g lab1 --slot staging --target-slot production
   
+  #Performance test that runs as a parallel job
   K6_Load_Test:
     runs-on: ubuntu-latest
     steps:
@@ -140,24 +144,29 @@ jobs:
     - name: Pull Docker image used for k6
       run: docker pull loadimpact/k6
 
+    #Picks up and runs the performance test script, produces report
     - name: Run load tests and save output
       run: docker run -i loadimpact/k6 run - <PerfTestCA1.js > k6output.txt
 
+    #Upload K6 report
     - uses: actions/upload-artifact@v2
       name: upload K6 report
       with:
         name: k6output
         path: k6output.txt
 
+  #Performs OWASP Zap Penetration Test
   zap_baseline_scan:
     runs-on: ubuntu-latest
     steps:
     - name: Pull Docker image for ZAP
       run: docker pull owasp/zap2docker-weekly
 
+    #Runs scan against specified URI
     - name: Run baseline scan
       run: docker run -v /report:/zap/wrk/:rw --user root -t owasp/zap2docker-weekly zap-baseline.py -t ${{env.URI}} -I -r zapreport.html
   
+    #Uploads result of Scan
     - uses: actions/upload-artifact@v2
       name: upload ZAP report
       with:
