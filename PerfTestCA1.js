@@ -16,7 +16,7 @@ export let options = {
   
   // 95% of request duration times should be < 200 ms
  	thresholds: {
-    "http_req_duration": ["p(85) < 200"]
+    "http_req_duration": ["p(95) < 200"]
   },
 
   discardResponseBodies: false,

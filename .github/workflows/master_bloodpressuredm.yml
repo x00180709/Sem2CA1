@@ -39,12 +39,12 @@ jobs:
         run: |
             $PWD.path
             ls
-            Push-Location 'PlaywrightTests/bin/';
+            CD 'PlaywrightTests/bin/';
             ls
-            Push-Location 'Debug/net6.0/';
+            CD 'Debug/net6.0/';
             ls
             .\playwright.ps1 install --with-deps;
-            Pop-Location;
+            CD;
       
       - name: Run PLaywright Tests
         run: dotnet test PlaywrightTests/PlaywrightTests.csproj --no-restore -l:trx
