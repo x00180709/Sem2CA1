@@ -109,11 +109,11 @@ jobs:
     #Installs dependencies needed for playwright tests to be executed
     # Executes a powershell command once navigated to the correct file location
     - name: Install Playwright Dependencies
-          shell: pwsh
-          run: |
-            CD 'PlaywrightTests/bin/Release/net6.0/';
-            pwsh playwright.ps1 install --with-deps;
-            CD;
+        shell: pwsh
+        run: |
+          CD 'PlaywrightTests/bin/Release/net6.0/';
+          pwsh playwright.ps1 install --with-deps;
+          CD;
       
     #Runs associated Playwright Tests
     - name: Run Playwright Acceptance Tests
