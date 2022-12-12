@@ -37,7 +37,7 @@ jobs:
       - name: Ensure browsers are installed for Playwright
         shell: pwsh
         run: |
-            CD 'PlaywrightTests/bin/';
+            CD 'PlaywrightTests/bin/Release/';
             ls
             CD;
       
