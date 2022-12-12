@@ -37,8 +37,9 @@ jobs:
       - name: Ensure browsers are installed for Playwright
         shell: pwsh
         run: |
-            CD 'PlaywrightTests/bin/Release/';
+            CD 'PlaywrightTests/bin/Release/net6.0/';
             ls
+            pwsh playwright.ps1 install --with-deps;
             CD;
       
       - name: Run PLaywright Tests
