@@ -37,7 +37,7 @@ function getRandomInt(min, max) {
 export default function() {
  
   // do an initial GET, force response body so that form can be subsequently submited
-  let res = http.get("https://bloodpressuredm.azurewebsites.net", {"responseType": "text"});
+  let res = http.get("https://bloodpressuredm-staging.azurewebsites.net", {"responseType": "text"});
 
   check(res, {
     "is status 200": (r) => r.status === 200

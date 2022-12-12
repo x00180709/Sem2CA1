@@ -51,7 +51,7 @@ jobs:
         #   # SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   #Runs OWASP Dependency Check as a parallel job
-  Dependency_Check:
+  OWASP_Dependency_Check:
     runs-on: ubuntu-latest
     name: OWASP_Dependency_Check
     steps:
@@ -71,15 +71,11 @@ jobs:
             --enableRetired
 
       #Upload results to be visible as an artifact
-      - name: Upload Test results
+      - name: Upload Dependency Check Results
         uses: actions/upload-artifact@master
         with:
-           name: Depcheck report
+           name: Depcheck Report
            path: ${{github.workspace}}/reports
-
-  #   - name: Run your tests
-  #     run: dotnet test #runs against chrome
-  #     run: BROWSER=firefox dotnet test #cross browser
 
   Deploy_Run_Playwright_Tests_Swap_Slots:
     name: Deploy to Azure Staging Slot
@@ -116,24 +112,25 @@ jobs:
         CD;
       
     #Runs associated Playwright Tests
+    #Runs on Chrome by default
     - name: Run Playwright Acceptance Tests
-      run: dotnet test PlaywrightTests/PlaywrightTests.csproj --logger:"trx;LogFileName=playwright.trx"
+      run: dotnet test PlaywrightTests/PlaywrightTests.csproj --logger:"trx;LogFileName=playwright.trx" # for cross browser add - run: BROWSER=firefox dotnet test
 
     # Upload results of Playwright tests
     - uses: actions/upload-artifact@v3
       with:
         name: Playwright Test Results
-        path: TestResults/playwright.trx
+        path: playwright.trx
 
-    # # Login to Azure account
-    # - uses: azure/login@v1
-    #   with:
-    #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+    # Login to Azure account
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    # # Perform Deployment Slot Swap (Blue/Green)
-    # - name: swap QA and production slots
-    #   run: |
-    #     az webapp deployment slot swap -n bloodpressuredm-staging -g Lab1 --slot staging --target-slot production
+    # Perform Deployment Slot Swap (Blue/Green)
+    - name: Swap Staging and Production Slots
+      run: |
+        az webapp deployment slot swap -n bloodpressuredm -g Lab1 --slot staging --target-slot production
   
   #Performance test that runs as a parallel job
   K6_Load_Test:
@@ -141,11 +138,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Pull Docker image used for k6
+    - name: Pull Docker Image used for k6
       run: docker pull loadimpact/k6
 
     #Picks up and runs the performance test script, produces report
-    - name: Run load tests and save output
+    - name: Run Load Tests and Save Output
       run: docker run -i loadimpact/k6 run - <PerfTestCA1.js > k6output.txt
 
     #Upload K6 report
@@ -156,19 +153,19 @@ jobs:
         path: k6output.txt
 
   #Performs OWASP Zap Penetration Test
-  zap_baseline_scan:
+  Zap_Scan:
     runs-on: ubuntu-latest
     steps:
     - name: Pull Docker image for ZAP
       run: docker pull owasp/zap2docker-weekly
 
     #Runs scan against specified URI
-    - name: Run baseline scan
+    - name: Run Baseline Scan
       run: docker run -v /report:/zap/wrk/:rw --user root -t owasp/zap2docker-weekly zap-baseline.py -t ${{env.URI}} -I -r zapreport.html
   
     #Uploads result of Scan
     - uses: actions/upload-artifact@v2
-      name: upload ZAP report
+      name: Upload ZAP Report
       with:
         name: ZAPreport
         path: /report/zapreport.html
