@@ -38,7 +38,7 @@ jobs:
         shell: pwsh
         run: |
             $PWD.path
-            Push-Location 'Sem2CA1/Sem2CA1/PlaywrightTests/bin/Debug/net6.0/';
+            Push-Location 'PlaywrightTests/bin/Debug/net6.0/';
             .\playwright.ps1 install --with-deps;
             Pop-Location;
       
