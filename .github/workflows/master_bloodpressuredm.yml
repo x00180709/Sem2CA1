@@ -133,7 +133,7 @@ jobs:
     # Perform Deployment Slot Swap (Blue/Green)
     - name: swap QA and production slots
       run: |
-        az webapp deployment slot swap -n bloodpressuredm-staging -g lab1 --slot staging --target-slot production
+        az webapp deployment slot swap -n bloodpressuredm-staging -g Lab1 --slot staging --target-slot production
   
   #Performance test that runs as a parallel job
   K6_Load_Test:
