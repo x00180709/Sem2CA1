@@ -125,15 +125,15 @@ jobs:
         name: Playwright Test Results
         path: TestResults/playwright.trx
 
-    # Login to Azure account
-    - uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    # # Login to Azure account
+    # - uses: azure/login@v1
+    #   with:
+    #     creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    # Perform Deployment Slot Swap (Blue/Green)
-    - name: swap QA and production slots
-      run: |
-        az webapp deployment slot swap -n bloodpressuredm-staging -g Lab1 --slot staging --target-slot production
+    # # Perform Deployment Slot Swap (Blue/Green)
+    # - name: swap QA and production slots
+    #   run: |
+    #     az webapp deployment slot swap -n bloodpressuredm-staging -g Lab1 --slot staging --target-slot production
   
   #Performance test that runs as a parallel job
   K6_Load_Test:
