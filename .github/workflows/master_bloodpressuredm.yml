@@ -36,7 +36,10 @@ jobs:
       
       - name: Ensure browsers are installed for Playwright
         shell: pwsh
-        run: pwsh & '/home/runner/work/Sem2CA1/Sem2CA1/PlaywrightTests/bin/Debug/net6.0/playwright.ps1' install --with-deps
+        run: |
+            Push-Location '/home/runner/work/Sem2CA1/Sem2CA1/PlaywrightTests/bin/Debug/net6.0/';
+            .\playwright.ps1 install --with-deps;
+            Pop-Location;
       
       - name: Run PLaywright Tests
         run: dotnet test PlaywrightTests/PlaywrightTests.csproj --no-restore -l:trx
