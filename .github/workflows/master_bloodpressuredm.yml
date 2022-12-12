@@ -38,7 +38,9 @@ jobs:
         shell: pwsh
         run: |
             $PWD.path
-            Push-Location 'PlaywrightTests/bin/Debug/net6.0/';
+            ls
+            Push-Location 'PlaywrightTests/bin/';
+            ls
             .\playwright.ps1 install --with-deps;
             Pop-Location;
       
@@ -143,10 +145,11 @@ jobs:
     - name: Run load tests and save output
       run: docker run -i loadimpact/k6 run - <PerfTestCA1.js > k6output.txt
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v2
+      name: upload K6 report
       with:
         name: k6output
-        path: /report/k6output.txt
+        path: k6output.txt
 
   zap_baseline_scan:
     runs-on: ubuntu-latest
