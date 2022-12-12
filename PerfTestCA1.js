@@ -14,7 +14,7 @@ export let options = {
     { duration: "30s", target: 0 }             
   ],
   
-  // 95% of request duration times should be < 200 ms
+  // 90% of request duration times should be < 200 ms
  	thresholds: {
     "http_req_duration": ["p(90) < 200"]
   },
