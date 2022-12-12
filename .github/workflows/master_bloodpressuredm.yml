@@ -41,6 +41,8 @@ jobs:
             ls
             Push-Location 'PlaywrightTests/bin/';
             ls
+            Push-Location 'Debug/net6.0/';
+            ls
             .\playwright.ps1 install --with-deps;
             Pop-Location;
       
